@@ -49,6 +49,30 @@ uv run python -m pytest -q
 - 统一错误映射：将第三方异常映射到内部错误码。
 - 测试扩展到 5 个以上，覆盖边界输入。
 
+### Level 2 当前实现（本仓库）
+
+- 可配置重试策略：`RetryPolicy`
+  - `max_retries`
+  - `base_backoff_seconds`
+  - `backoff_multiplier`
+  - `retriable_error_codes`
+  - `retriable_status_codes`
+- 超时分层：`TimeoutPolicy`
+  - `connect_timeout_seconds`
+  - `read_timeout_seconds`
+- 第三方异常映射：`map_external_error(...)`
+  - `TimeoutError(connect/read)` -> `CONNECT_TIMEOUT / READ_TIMEOUT`
+  - `ConnectionError` -> `NETWORK_ERROR`
+  - 带 `status_code` 的异常 -> `HTTP_<status>`
+- 测试已扩展到 8 条，覆盖边界与策略配置。
+
+### Level 2 验证命令
+
+```bash
+cd python-agent-starter
+uv run python -m pytest -q
+```
+
 ## Level 3（2-4 小时）：面试可讲深度
 
 - 增加熔断机制（连续失败后快速失败）。
