@@ -25,6 +25,23 @@
 - 本地运行 `pytest`。
 - 修复导入路径或依赖问题，确保可运行。
 
+### Level 1 当前实现（本仓库）
+
+- 目录：`python-agent-starter/`
+- 已实现：
+  - `src/common/http_client.py`：超时重试、429 重试、指数退避
+  - `src/common/errors.py`：统一异常模型（配置/请求/业务）
+  - 日志字段：失败日志记录 `run_id` + `error_code`
+  - `tests/test_http_client.py`：至少 3 条测试（当前 4 条）
+
+### Level 1 验证命令
+
+```bash
+cd python-agent-starter
+uv sync --dev
+uv run python -m pytest -q
+```
+
 ## Level 2（1-2 小时）：工程加固任务
 
 - 为 `http_client` 增加可配置重试策略（最大次数、退避系数、可重试错误码）。

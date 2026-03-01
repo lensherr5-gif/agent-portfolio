@@ -1,0 +1,20 @@
+[project]
+name = "stage01-python-engineering"
+version = "0.1.0"
+description = "Stage 01 minimal engineering baseline with retryable http client."
+requires-python = ">=3.11"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "pytest==8.3.5",
+    "ruff==0.11.13",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
