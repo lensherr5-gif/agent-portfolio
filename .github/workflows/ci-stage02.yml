@@ -1,0 +1,42 @@
+name: ci-stage02
+
+on:
+  push:
+    branches: [main, stage02-l1, stage02-l2, stage02-l3]
+    paths:
+      - "stages/02-llm-tool-calling/**"
+      - ".github/workflows/ci-stage02.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "stages/02-llm-tool-calling/**"
+      - ".github/workflows/ci-stage02.yml"
+  workflow_dispatch:
+
+jobs:
+  test-and-eval:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: stages/02-llm-tool-calling/python-agent-starter
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Setup Python
+        run: uv python install 3.13
+
+      - name: Sync deps
+        run: uv sync --dev
+
+      - name: Lint
+        run: uv run ruff check . && uv run ruff format --check .
+
+      - name: Test
+        run: uv run python -m pytest -q
+
+      - name: Eval
+        run: uv run python -m evals.run_eval --mode all --report reports/eval_report.md

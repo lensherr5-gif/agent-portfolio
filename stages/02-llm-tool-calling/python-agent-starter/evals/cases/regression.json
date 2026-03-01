@@ -1,0 +1,22 @@
+[
+  {"id":"reg_01","prompt":"calc 1","expected_tool":"calculator","llm_raw":"{\"final_answer\":\"calc\",\"tool_call\":{\"tool_name\":\"calculator\",\"args\":{\"expression\":\"1+1\"}}}","expect_ok":true},
+  {"id":"reg_02","prompt":"calc 2","expected_tool":"calculator","llm_raw":"{\"final_answer\":\"calc\",\"tool_call\":{\"tool_name\":\"calculator\",\"args\":{\"expression\":\"2+2\"}}}","expect_ok":true},
+  {"id":"reg_03","prompt":"calc 3","expected_tool":"calculator","llm_raw":"{\"final_answer\":\"calc\",\"tool_call\":{\"tool_name\":\"calculator\",\"args\":{\"expression\":\"3+3\"}}}","expect_ok":true},
+  {"id":"reg_04","prompt":"calc 4","expected_tool":"calculator","llm_raw":"{\"final_answer\":\"calc\",\"tool_call\":{\"tool_name\":\"calculator\",\"args\":{\"expression\":\"4+4\"}}}","expect_ok":true},
+  {"id":"reg_05","prompt":"calc 5","expected_tool":"calculator","llm_raw":"{'final_answer':'calc','tool_call':{'tool_name':'calculator','args':{'expression':'5+5'}}}","expect_ok":true},
+  {"id":"reg_06","prompt":"calc 6","expected_tool":"calculator","llm_raw":"{\"final_answer\":\"calc\",\"tool_call\":{\"tool_name\":\"calculator\",\"args\":{\"expression\":\"6+6\"}}}","expect_ok":true},
+  {"id":"reg_07","prompt":"calc 7","expected_tool":"calculator","llm_raw":"{\"final_answer\":\"calc\",\"tool_call\":{\"tool_name\":\"calculator\",\"args\":{\"expression\":\"7+7\"}}}","expect_ok":true},
+  {"id":"reg_08","prompt":"calc 8","expected_tool":"calculator","llm_raw":"{\"final_answer\":\"calc\",\"tool_call\":{\"tool_name\":\"calculator\",\"args\":{\"expression\":\"8+8\"}}}","expect_ok":true},
+  {"id":"reg_09","prompt":"calc 9","expected_tool":"calculator","llm_raw":"{\"final_answer\":\"calc\",\"tool_call\":{\"tool_name\":\"calculator\",\"args\":{\"expression\":\"9+9\"}}}","expect_ok":true},
+  {"id":"reg_10","prompt":"calc 10","expected_tool":"calculator","llm_raw":"{\"final_answer\":\"calc\",\"tool_call\":{\"tool_name\":\"calculator\",\"args\":{\"expression\":\"10+10\"}}}","expect_ok":true},
+  {"id":"reg_11","prompt":"search 1","expected_tool":"web_search_mock","llm_raw":"{\"final_answer\":\"search\",\"tool_call\":{\"tool_name\":\"web_search_mock\",\"args\":{\"query\":\"A\"}}}","expect_ok":true},
+  {"id":"reg_12","prompt":"search 2","expected_tool":"web_search_mock","llm_raw":"{\"final_answer\":\"search\",\"tool_call\":{\"tool_name\":\"web_search_mock\",\"args\":{\"query\":\"B\"}}}","expect_ok":true},
+  {"id":"reg_13","prompt":"search 3","expected_tool":"web_search_mock","llm_raw":"{\"final_answer\":\"search\",\"tool_call\":{\"tool_name\":\"web_search_mock\",\"args\":{\"query\":\"C\"}}}","expect_ok":true},
+  {"id":"reg_14","prompt":"search 4","expected_tool":"web_search_mock","llm_raw":"{\"final_answer\":\"search\",\"tool_call\":{\"tool_name\":\"web_search_mock\",\"args\":{\"query\":\"D\"}}}","expect_ok":true},
+  {"id":"reg_15","prompt":"search 5","expected_tool":"web_search_mock","llm_raw":"{\"final_answer\":\"search\",\"tool_call\":{\"tool_name\":\"web_search_mock\",\"args\":{\"query\":\"E\"}}}","expect_ok":true},
+  {"id":"reg_16","prompt":"policy 1","expected_tool":"write_file_guarded","llm_raw":"{\"final_answer\":\"write\",\"tool_call\":{\"tool_name\":\"write_file_guarded\",\"args\":{\"path\":\"x.txt\",\"content\":\"1\"}}}","expect_ok":false},
+  {"id":"reg_17","prompt":"policy 2","expected_tool":"write_file_guarded","llm_raw":"{\"final_answer\":\"write\",\"tool_call\":{\"tool_name\":\"write_file_guarded\",\"args\":{\"path\":\"y.txt\",\"content\":\"2\"}}}","expect_ok":false},
+  {"id":"reg_18","prompt":"bad schema","expected_tool":"calculator","llm_raw":"{\"final_answer\":\"calc\",\"tool_call\":{\"tool_name\":\"calculator\",\"args\":{\"expr\":\"1+1\"}}}","expect_ok":false},
+  {"id":"reg_19","prompt":"invalid json","expected_tool":"calculator","llm_raw":"{\"final_answer\":\"calc\",\"tool_call\":{\"tool_name\":\"calculator\",\"args\":{\"expression\":\"1+1\",}}}","expect_ok":true},
+  {"id":"reg_20","prompt":"unknown tool","expected_tool":"unknown","llm_raw":"{\"final_answer\":\"x\",\"tool_call\":{\"tool_name\":\"unknown\",\"args\":{}}}","expect_ok":false}
+]

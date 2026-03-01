@@ -1,0 +1,16 @@
+[
+  {
+    "id": "smoke_calc",
+    "prompt": "请计算1+2",
+    "expected_tool": "calculator",
+    "llm_raw": "{\"final_answer\":\"I will calculate\",\"tool_call\":{\"tool_name\":\"calculator\",\"args\":{\"expression\":\"1+2\"}}}",
+    "expect_ok": true
+  },
+  {
+    "id": "smoke_search",
+    "prompt": "帮我搜索Python",
+    "expected_tool": "web_search_mock",
+    "llm_raw": "{\"final_answer\":\"I will search\",\"tool_call\":{\"tool_name\":\"web_search_mock\",\"args\":{\"query\":\"Python\"}}}",
+    "expect_ok": true
+  }
+]
