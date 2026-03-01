@@ -1,0 +1,39 @@
+name: ci-stage01
+
+on:
+  push:
+    branches: [main, stage01-l1, stage01-l2, stage01-l3]
+    paths:
+      - "stages/01-python-engineering/**"
+      - ".github/workflows/ci-stage01.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "stages/01-python-engineering/**"
+      - ".github/workflows/ci-stage01.yml"
+  workflow_dispatch:
+
+jobs:
+  test-and-lint:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: stages/01-python-engineering/python-agent-starter
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Setup Python
+        run: uv python install 3.13
+
+      - name: Sync deps
+        run: uv sync --dev
+
+      - name: Lint
+        run: uv run ruff check . && uv run ruff format --check .
+
+      - name: Test
+        run: uv run python -m pytest -q

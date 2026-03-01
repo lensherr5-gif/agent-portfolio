@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import asyncio
 import time
 from dataclasses import dataclass, field
-from typing import Callable
+from enum import Enum
+from typing import Awaitable, Callable
 
 from src.common.errors import (
     ConnectTimeoutError,
@@ -44,6 +46,45 @@ class TimeoutPolicy:
 
     connect_timeout_seconds: float = 1.0
     read_timeout_seconds: float = 3.0
+
+
+class CircuitState(str, Enum):
+    CLOSED = "closed"
+    OPEN = "open"
+
+
+@dataclass
+class CircuitBreaker:
+    """简化熔断器：失败次数超过阈值后快速失败。"""
+
+    failure_threshold: int = 3
+    recovery_timeout_seconds: float = 10.0
+    state: CircuitState = CircuitState.CLOSED
+    failure_count: int = 0
+    opened_at: float | None = None
+
+    def before_request(self, now_fn: Callable[[], float] = time.time) -> None:
+        if self.state != CircuitState.OPEN:
+            return
+        assert self.opened_at is not None
+        if now_fn() - self.opened_at >= self.recovery_timeout_seconds:
+            # 超过恢复窗口后允许一次请求探测。
+            self.state = CircuitState.CLOSED
+            self.failure_count = 0
+            self.opened_at = None
+            return
+        raise RequestError("circuit breaker is open", error_code="CIRCUIT_OPEN")
+
+    def record_success(self) -> None:
+        self.failure_count = 0
+        self.state = CircuitState.CLOSED
+        self.opened_at = None
+
+    def record_failure(self, now_fn: Callable[[], float] = time.time) -> None:
+        self.failure_count += 1
+        if self.failure_count >= self.failure_threshold:
+            self.state = CircuitState.OPEN
+            self.opened_at = now_fn()
 
 
 def _backoff_seconds(policy: RetryPolicy, attempt: int) -> float:
@@ -89,6 +130,7 @@ def request_with_retry(
     run_id: str,
     retry_policy: RetryPolicy | None = None,
     timeout_policy: TimeoutPolicy | None = None,
+    circuit_breaker: CircuitBreaker | None = None,
     logger: Callable[[dict[str, object]], None] | None = None,
     sleep_fn: Callable[[float], None] = time.sleep,
 ) -> HttpResponse:
@@ -99,10 +141,14 @@ def request_with_retry(
     attempt = 0
     while True:
         attempt += 1
+        if circuit_breaker is not None:
+            circuit_breaker.before_request()
         try:
             response = transport()
         except Exception as exc:  # noqa: BLE001 - 统一映射第三方异常
             mapped = map_external_error(exc)
+            if circuit_breaker is not None:
+                circuit_breaker.record_failure()
             if logger:
                 logger(
                     {
@@ -122,6 +168,8 @@ def request_with_retry(
             continue
 
         if response.status_code in policy.retriable_status_codes:
+            if circuit_breaker is not None:
+                circuit_breaker.record_failure()
             if logger:
                 logger(
                     {
@@ -142,6 +190,8 @@ def request_with_retry(
             sleep_fn(_backoff_seconds(policy, attempt))
             continue
 
+        if circuit_breaker is not None:
+            circuit_breaker.record_success()
         return response
 
 
@@ -168,3 +218,19 @@ def build_httpx_get_transport(
         return HttpResponse(status_code=response.status_code, body=response.text)
 
     return _transport
+
+
+async def request_many_with_semaphore(
+    transports: list[Callable[[], Awaitable[HttpResponse]]],
+    *,
+    run_id: str,
+    max_concurrency: int = 3,
+) -> list[HttpResponse]:
+    """并发执行多个请求，通过 Semaphore 限制瞬时并发。"""
+    semaphore = asyncio.Semaphore(max_concurrency)
+
+    async def _run_one(transport: Callable[[], Awaitable[HttpResponse]]) -> HttpResponse:
+        async with semaphore:
+            return await transport()
+
+    return await asyncio.gather(*[_run_one(t) for t in transports])

@@ -89,6 +89,29 @@ STAGE01_HTTP_SMOKE=1 uv run python -m pytest -q -k real_http_transport_smoke
 - 增加故障注入测试（随机超时/随机 429）验证恢复能力。
 - 产出一份 `postmortem.md`：一次失败如何定位与修复。
 
+### Level 3 当前实现（本仓库）
+
+- 熔断机制：`CircuitBreaker`
+  - 连续失败达到阈值后转为 `OPEN`
+  - 熔断打开期间快速失败，避免继续放大上游压力
+- 并发控制：`request_many_with_semaphore(...)`
+  - 使用 `asyncio.Semaphore` 限制并发度
+- 故障注入测试：
+  - 随机注入 `timeout` 与 `429`，验证重试恢复能力
+- 复盘文档：
+  - `python-agent-starter/docs/postmortem.md`
+- CI（Level 3 强制项）：
+  - 根目录工作流：`.github/workflows/ci-stage01.yml`
+  - 自动执行 `uv sync --dev`、`ruff`、`pytest`
+
+### Level 3 验证命令
+
+```bash
+cd python-agent-starter
+uv run python -m pytest -q
+uv run ruff check . && uv run ruff format --check .
+```
+
 ## 产物
 
 - `src/common/http_client.py`

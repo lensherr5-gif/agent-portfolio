@@ -1,17 +1,21 @@
 from __future__ import annotations
 
+import asyncio
 import os
+import random
 from collections.abc import Iterator
 
 import pytest
 
 from src.common.errors import HttpRequestError, RequestError
 from src.common.http_client import (
+    CircuitBreaker,
     HttpResponse,
     RetryPolicy,
     TimeoutPolicy,
     build_httpx_get_transport,
     map_external_error,
+    request_many_with_semaphore,
     request_with_retry,
 )
 
@@ -120,7 +124,9 @@ def test_non_retriable_http_500_fail_fast() -> None:
 
 def test_custom_retry_policy_no_retry_on_timeout() -> None:
     attempts = {"count": 0}
-    seq = _seq_transport([TimeoutError("connect timeout"), HttpResponse(status_code=200, body="ok")])
+    seq = _seq_transport(
+        [TimeoutError("connect timeout"), HttpResponse(status_code=200, body="ok")]
+    )
 
     def transport() -> HttpResponse:
         attempts["count"] += 1
@@ -184,4 +190,95 @@ def test_real_http_transport_smoke() -> None:
         sleep_fn=lambda _: None,
     )
     assert response.status_code == 200
-    assert "\"url\"" in response.body
+    assert '"url"' in response.body
+
+
+def test_circuit_breaker_open_then_fail_fast() -> None:
+    breaker = CircuitBreaker(failure_threshold=2, recovery_timeout_seconds=60.0)
+
+    def transport() -> HttpResponse:
+        raise TimeoutError("connect timeout")
+
+    with pytest.raises(RequestError) as first:
+        request_with_retry(
+            transport,
+            run_id="run-009",
+            retry_policy=RetryPolicy(max_retries=0),
+            circuit_breaker=breaker,
+            sleep_fn=lambda _: None,
+        )
+    assert first.value.error_code == "CONNECT_TIMEOUT"
+
+    with pytest.raises(RequestError) as second:
+        request_with_retry(
+            transport,
+            run_id="run-010",
+            retry_policy=RetryPolicy(max_retries=0),
+            circuit_breaker=breaker,
+            sleep_fn=lambda _: None,
+        )
+    assert second.value.error_code == "CONNECT_TIMEOUT"
+    assert breaker.state.value == "open"
+
+    with pytest.raises(RequestError) as fast_fail:
+        request_with_retry(
+            transport,
+            run_id="run-011",
+            retry_policy=RetryPolicy(max_retries=0),
+            circuit_breaker=breaker,
+            sleep_fn=lambda _: None,
+        )
+    assert fast_fail.value.error_code == "CIRCUIT_OPEN"
+
+
+def test_request_many_with_semaphore_limits_concurrency() -> None:
+    current = {"v": 0}
+    max_seen = {"v": 0}
+    lock = asyncio.Lock()
+
+    def make_transport():
+        async def _transport() -> HttpResponse:
+            async with lock:
+                current["v"] += 1
+                max_seen["v"] = max(max_seen["v"], current["v"])
+            await asyncio.sleep(0.02)
+            async with lock:
+                current["v"] -= 1
+            return HttpResponse(status_code=200, body="ok")
+
+        return _transport
+
+    transports = [make_transport() for _ in range(8)]
+    responses = asyncio.run(
+        request_many_with_semaphore(
+            transports,
+            run_id="run-012",
+            max_concurrency=3,
+        )
+    )
+    assert len(responses) == 8
+    assert max_seen["v"] <= 3
+
+
+def test_fault_injection_random_timeout_and_429_recovery() -> None:
+    rng = random.Random(7)
+    state = {"attempt": 0}
+
+    def transport() -> HttpResponse:
+        state["attempt"] += 1
+        # 前几次在 timeout/429/200 中随机，之后保证成功，便于验证可恢复。
+        if state["attempt"] <= 6:
+            x = rng.random()
+            if x < 0.35:
+                raise TimeoutError("read timeout")
+            if x < 0.7:
+                raise HttpRequestError(429)
+        return HttpResponse(status_code=200, body="ok")
+
+    response = request_with_retry(
+        transport,
+        run_id="run-013",
+        retry_policy=RetryPolicy(max_retries=10, base_backoff_seconds=0.0),
+        sleep_fn=lambda _: None,
+    )
+    assert response.status_code == 200
