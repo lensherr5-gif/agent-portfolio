@@ -28,7 +28,7 @@
    - 运行命令
 3. 默认生成最小可运行版本，再给工程加固点。
 4. 不引入未使用的依赖，不生成无法运行的占位代码。
-5. 关键路径必须有中文注释（详细且关键）。
+5. 主要代码必须有中文注释（详细且关键）。
 
 ## 目录与命名约束
 
@@ -95,12 +95,14 @@ uv run python -m pytest -q
   - `level-2: ...`
   - `level-3: ...`
 - 每个 level 完成建议打标签：`stageXX-l1/l2/l3`
+- 合并策略（强制）：`stageXX-l3` 提交后，必须在 CI 通过后自动合并到 `main`（建议使用 GitHub Auto-merge）。
 
 ## 阶段生成策略（后续章节）
 
 - Level 1：最小可运行（必须能跑）
 - Level 2：工程加固（错误处理、日志、测试增强）
 - Level 3：工程深度（CI、质量门禁、复盘文档、可观测）
+- 强制要求：所有章节的 Level 3 都必须包含 CI 测试配置，且 CI 至少执行 `uv sync --dev`、`ruff check + format --check`、`pytest`。
 
 ## Definition of Done（DoD）
 
