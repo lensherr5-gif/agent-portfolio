@@ -13,6 +13,7 @@
 ```text
 基于一个 Python agent starter，帮我补齐工程能力：
 1) http_client，支持 timeout + retry + 指数退避 + 429 处理
+2) 必须提供真实联网 transport（例如 httpx/requests），不是只写 mock
 2) 统一异常模型（配置错误、请求错误、业务错误）
 3) 日志包含 run_id 和 error_code
 4) 至少 3 个 pytest（超时、429、正常返回）
@@ -24,6 +25,11 @@
 - 粘贴并落地生成代码。
 - 本地运行 `pytest`。
 - 修复导入路径或依赖问题，确保可运行。
+
+### Level 1 新增强制要求（已更新）
+
+- `http_client` 不能只依赖假 transport，必须有一个真实联网入口（可对公开 API 发起请求）。
+- 测试仍优先使用 mock/假 transport，保证可重复和稳定。
 
 ### Level 1 当前实现（本仓库）
 
@@ -48,6 +54,7 @@ uv run python -m pytest -q
 - 为网络调用增加超时分层（连接超时/读超时）。
 - 统一错误映射：将第三方异常映射到内部错误码。
 - 测试扩展到 5 个以上，覆盖边界输入。
+- 增加 1 条真实联网 smoke 测试（可通过环境变量开关，仅在联网环境执行）。
 
 ### Level 2 当前实现（本仓库）
 
@@ -64,13 +71,15 @@ uv run python -m pytest -q
   - `TimeoutError(connect/read)` -> `CONNECT_TIMEOUT / READ_TIMEOUT`
   - `ConnectionError` -> `NETWORK_ERROR`
   - 带 `status_code` 的异常 -> `HTTP_<status>`
-- 测试已扩展到 8 条，覆盖边界与策略配置。
+- 真实联网 transport：`build_httpx_get_transport(...)`（httpx）
+- 测试已扩展到 9 条，其中 1 条为联网 smoke（默认跳过，可通过环境变量开启）。
 
 ### Level 2 验证命令
 
 ```bash
 cd python-agent-starter
 uv run python -m pytest -q
+STAGE01_HTTP_SMOKE=1 uv run python -m pytest -q -k real_http_transport_smoke
 ```
 
 ## Level 3（2-4 小时）：面试可讲深度

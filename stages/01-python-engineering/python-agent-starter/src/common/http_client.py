@@ -66,6 +66,16 @@ def map_external_error(exc: Exception) -> RequestError:
     if isinstance(exc, ConnectionError):
         return NetworkError(str(exc) or "connection failed")
 
+    name_lower = exc.__class__.__name__.lower()
+    if "connecttimeout" in name_lower:
+        return ConnectTimeoutError(str(exc))
+    if "readtimeout" in name_lower:
+        return ReadTimeoutError(str(exc))
+    if "timeout" in name_lower:
+        return RequestError(str(exc) or "timeout", error_code="TIMEOUT")
+    if "networkerror" in name_lower or "connecterror" in name_lower:
+        return NetworkError(str(exc) or "connection failed")
+
     status_code = getattr(exc, "status_code", None)
     if isinstance(status_code, int):
         return HttpRequestError(status_code, str(exc) or "third-party http error")
@@ -133,3 +143,28 @@ def request_with_retry(
             continue
 
         return response
+
+
+def build_httpx_get_transport(
+    url: str,
+    *,
+    timeout_policy: TimeoutPolicy | None = None,
+    headers: dict[str, str] | None = None,
+) -> Callable[[], HttpResponse]:
+    """构建真实联网 GET transport（基于 httpx）。"""
+    timeout_cfg = timeout_policy or TimeoutPolicy()
+
+    def _transport() -> HttpResponse:
+        import httpx
+
+        timeout = httpx.Timeout(
+            connect=timeout_cfg.connect_timeout_seconds,
+            read=timeout_cfg.read_timeout_seconds,
+            write=timeout_cfg.read_timeout_seconds,
+            pool=timeout_cfg.connect_timeout_seconds,
+        )
+        with httpx.Client(timeout=timeout, follow_redirects=True) as client:
+            response = client.get(url, headers=headers)
+        return HttpResponse(status_code=response.status_code, body=response.text)
+
+    return _transport

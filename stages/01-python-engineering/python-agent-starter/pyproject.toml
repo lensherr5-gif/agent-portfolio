@@ -3,7 +3,9 @@ name = "stage01-python-engineering"
 version = "0.1.0"
 description = "Stage 01 minimal engineering baseline with retryable http client."
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "httpx==0.28.1",
+]
 
 [dependency-groups]
 dev = [

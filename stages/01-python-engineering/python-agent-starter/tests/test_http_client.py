@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from collections.abc import Iterator
 
 import pytest
@@ -9,6 +10,7 @@ from src.common.http_client import (
     HttpResponse,
     RetryPolicy,
     TimeoutPolicy,
+    build_httpx_get_transport,
     map_external_error,
     request_with_retry,
 )
@@ -164,3 +166,22 @@ def test_timeout_policy_fields_in_log() -> None:
     )
     assert logs[0]["connect_timeout_seconds"] == 0.2
     assert logs[0]["read_timeout_seconds"] == 0.8
+
+
+@pytest.mark.skipif(
+    os.getenv("STAGE01_HTTP_SMOKE") != "1",
+    reason="set STAGE01_HTTP_SMOKE=1 to run real network smoke test",
+)
+def test_real_http_transport_smoke() -> None:
+    transport = build_httpx_get_transport(
+        "https://httpbin.org/get",
+        timeout_policy=TimeoutPolicy(connect_timeout_seconds=2.0, read_timeout_seconds=4.0),
+    )
+    response = request_with_retry(
+        transport,
+        run_id="run-008",
+        retry_policy=RetryPolicy(max_retries=1),
+        sleep_fn=lambda _: None,
+    )
+    assert response.status_code == 200
+    assert "\"url\"" in response.body

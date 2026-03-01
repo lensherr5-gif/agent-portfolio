@@ -14,6 +14,7 @@ uv run python -m pytest -q
 - `src/common/http_client.py`
   - 支持 `RetryPolicy` 自定义重试（次数、退避系数、可重试错误码/状态码）
   - 支持 `TimeoutPolicy`（连接超时、读取超时）
+  - 支持真实联网 transport：`build_httpx_get_transport(...)`
   - 支持第三方异常映射为内部错误码
   - 支持 `run_id` 与 `error_code` 日志
 - `src/common/errors.py`
@@ -27,3 +28,10 @@ uv run python -m pytest -q
 - 非重试状态码（500）快速失败
 - 自定义策略禁用重试时快速失败
 - 超过重试上限后抛错
+- 真实联网 smoke 测试（环境变量开关，默认跳过）
+
+## 联网 smoke 测试（可选）
+
+```bash
+STAGE01_HTTP_SMOKE=1 uv run python -m pytest -q -k real_http_transport_smoke
+```
