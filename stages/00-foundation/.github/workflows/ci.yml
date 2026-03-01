@@ -1,0 +1,32 @@
+name: ci
+
+on:
+  push:
+    branches: [main, level-1, level-2, level-3]
+  pull_request:
+    branches: [main, level-1, level-2, level-3]
+
+jobs:
+  test-and-lint:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: python-agent-starter
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Setup Python
+        run: uv python install 3.13
+
+      - name: Sync deps
+        run: uv sync --dev
+
+      - name: Lint
+        run: uv run ruff check . && uv run ruff format --check .
+
+      - name: Test
+        run: uv run python -m pytest -q

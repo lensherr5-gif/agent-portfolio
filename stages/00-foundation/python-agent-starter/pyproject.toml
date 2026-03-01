@@ -1,0 +1,21 @@
+[project]
+name = "python-agent-starter"
+version = "0.1.0"
+description = "Minimal Python agent starter with CLI, config, logging, and tests."
+requires-python = ">=3.11"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "pre-commit==4.2.0",
+    "pytest==8.3.5",
+    "ruff==0.11.13",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
