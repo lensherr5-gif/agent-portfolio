@@ -49,3 +49,35 @@
 - L1：流程可恢复并可审批。
 - L2：失败路径有清晰回路。
 - L3：可用图和指标解释架构决策。
+
+## 本阶段新增能力（skills.md 对齐补充）
+
+- 状态图流程与 checkpoint 持久化。
+- 中断恢复（resume）与审批节点（HITL）。
+- 失败回路与迁移事件日志。
+
+## 5 分钟启动
+
+```bash
+cd stages/05-langgraph
+uv sync --dev
+uv run python -m pytest -q
+```
+
+## 常用命令
+
+```bash
+./scripts/run.sh
+./scripts/test.sh
+./scripts/lint.sh
+```
+
+## 常见故障排查
+
+- 恢复失败：确认 `runs/checkpoints/<run_id>.json` 存在。
+- 一直等待审批：恢复时需传入 `approved=True`。
+
+## 验收标准
+
+- 高风险任务会进入审批节点。
+- checkpoint 可恢复并完成流程。

@@ -1,0 +1,25 @@
+{
+  "run_id": "sample-run",
+  "task": "计算 1+2",
+  "steps": [
+    {
+      "step": 1,
+      "thought": "用加法工具",
+      "action": "add",
+      "args": {"a": 1, "b": 2},
+      "observation": 3,
+      "latency_ms": 1
+    },
+    {
+      "step": 2,
+      "thought": "得到答案",
+      "action": "finish",
+      "observation": "3",
+      "latency_ms": 0
+    }
+  ],
+  "status": "succeeded",
+  "failure_taxonomy": null,
+  "answer": "3",
+  "total_latency_ms": 2
+}

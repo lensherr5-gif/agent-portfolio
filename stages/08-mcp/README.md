@@ -50,3 +50,35 @@
 - L1：Agent 能稳定调用 MCP 工具。
 - L2：契约和并发测试通过。
 - L3：安全与可运维能力可展示。
+
+## 本阶段新增能力（skills.md 对齐补充）
+
+- MCP 风格 todo 工具：`add_task/list_tasks/done_task`。
+- sqlite 持久化与 token 鉴权。
+- 审计日志（caller/参数摘要/结果摘要/耗时）。
+
+## 5 分钟启动
+
+```bash
+cd stages/08-mcp
+uv sync --dev
+uv run python -m pytest -q
+```
+
+## 常用命令
+
+```bash
+./scripts/run.sh
+./scripts/test.sh
+./scripts/lint.sh
+```
+
+## 常见故障排查
+
+- 鉴权失败：确认 token 与服务端一致。
+- `task_not_found`：确认 task_id 已存在且 > 0。
+
+## 验收标准
+
+- 工具调用稳定，未授权请求被拒绝。
+- 审计日志字段完整。

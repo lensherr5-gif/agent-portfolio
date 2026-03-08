@@ -1,0 +1,15 @@
+{
+  "run_id": "sample-checkpoint",
+  "task": "delete cache",
+  "approved": false,
+  "resumed": false,
+  "node": "human_approval",
+  "retries": 0,
+  "events": [
+    {"node": "plan", "high_risk": true},
+    {"node": "human_approval", "decision": "pending"}
+  ],
+  "status": "awaiting_approval",
+  "high_risk": true,
+  "latency_ms": 1
+}

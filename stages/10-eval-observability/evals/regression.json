@@ -1,0 +1,7 @@
+[
+  {"id": "reg-1", "query": "weekly summary"},
+  {"id": "reg-2", "query": "timeout prone tool"},
+  {"id": "reg-3", "query": "retrieval miss for unknown doc"},
+  {"id": "reg-4", "query": "normal response"},
+  {"id": "reg-5", "query": "schema migration"}
+]

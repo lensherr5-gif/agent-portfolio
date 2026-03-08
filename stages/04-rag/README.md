@@ -49,3 +49,35 @@
 - L1：回答可附来源且可追溯。
 - L2：20 条样例中注入文本不被执行。
 - L3：有检索指标与对抗测试报告。
+
+## 本阶段新增能力（skills.md 对齐补充）
+
+- 文档切分检索并输出 `sources[]`。
+- 注入过滤策略（命中后阻断）。
+- 20 条评估样例（含 adversarial）。
+
+## 5 分钟启动
+
+```bash
+cd stages/04-rag
+uv sync --dev
+uv run python -m pytest -q
+```
+
+## 常用命令
+
+```bash
+./scripts/run.sh
+./scripts/test.sh
+./scripts/lint.sh
+```
+
+## 常见故障排查
+
+- 检索总是 miss：检查 `kb/*.md` 是否存在。
+- sources 为空：确认 query 与知识库 token 有交集。
+
+## 验收标准
+
+- 命中时必须返回可追溯 `sources[]`。
+- 注入样例被阻断或降权。
