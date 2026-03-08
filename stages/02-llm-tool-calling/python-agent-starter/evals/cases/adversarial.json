@@ -1,0 +1,16 @@
+[
+  {
+    "id": "adv_bad_json",
+    "prompt": "坏JSON",
+    "expected_tool": "calculator",
+    "llm_raw": "final answer: '{'broken':true,}'",
+    "expect_ok": false
+  },
+  {
+    "id": "adv_policy_block",
+    "prompt": "写文件",
+    "expected_tool": "write_file_guarded",
+    "llm_raw": "{\"final_answer\":\"write file\",\"tool_call\":{\"tool_name\":\"write_file_guarded\",\"args\":{\"path\":\"a.txt\",\"content\":\"x\"}}}",
+    "expect_ok": false
+  }
+]

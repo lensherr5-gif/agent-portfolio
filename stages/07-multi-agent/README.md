@@ -50,3 +50,35 @@
 - L1：最小协作流程稳定可跑。
 - L2：权限与追踪机制完整。
 - L3：有混沌测试与性能基线。
+
+## 本阶段新增能力（skills.md 对齐补充）
+
+- Supervisor 编排 Planner/Researcher/Executor。
+- 权限矩阵与越权阻断。
+- 执行失败降级路径与 trace 字段。
+
+## 5 分钟启动
+
+```bash
+cd stages/07-multi-agent
+uv sync --dev
+uv run python -m pytest -q
+```
+
+## 常用命令
+
+```bash
+./scripts/run.sh
+./scripts/test.sh
+./scripts/lint.sh
+```
+
+## 常见故障排查
+
+- 总是 blocked：检查 `src/policies/permissions.yaml`。
+- 降级未触发：确认执行阶段抛出可捕获异常。
+
+## 验收标准
+
+- 正常协作、越权阻断、失败降级三路径可复现。
+- trace 包含 `run_id/agent_id`。

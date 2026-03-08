@@ -1,0 +1,5 @@
+{
+  "planner": ["plan"],
+  "researcher": ["search"],
+  "executor": ["execute", "write_report"]
+}

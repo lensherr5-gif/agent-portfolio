@@ -1,0 +1,5 @@
+[
+  {"id": "smoke-1", "query": "simple greeting"},
+  {"id": "smoke-2", "query": "basic tool call"},
+  {"id": "smoke-3", "query": "schema check"}
+]

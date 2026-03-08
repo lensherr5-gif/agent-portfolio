@@ -1,0 +1,28 @@
+name: ci-stage05
+
+on:
+  push:
+    branches: [main, stage05-l1, stage05-l2, stage05-l3]
+    paths:
+      - "stages/05-langgraph/**"
+      - ".github/workflows/ci-stage05.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "stages/05-langgraph/**"
+      - ".github/workflows/ci-stage05.yml"
+  workflow_dispatch:
+
+jobs:
+  test-and-lint:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: stages/05-langgraph
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv python install 3.13
+      - run: uv sync --dev
+      - run: uv run ruff check . && uv run ruff format --check .
+      - run: uv run python -m pytest -q

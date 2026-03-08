@@ -1,0 +1,29 @@
+name: ci-stage10
+
+on:
+  push:
+    branches: [main, stage10-l1, stage10-l2, stage10-l3]
+    paths:
+      - "stages/10-eval-observability/**"
+      - ".github/workflows/ci-stage10.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "stages/10-eval-observability/**"
+      - ".github/workflows/ci-stage10.yml"
+  workflow_dispatch:
+
+jobs:
+  test-lint-eval:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: stages/10-eval-observability
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv python install 3.13
+      - run: uv sync --dev
+      - run: uv run ruff check . && uv run ruff format --check .
+      - run: uv run python -m pytest -q
+      - run: uv run python scripts/run_eval.py --dataset-dir evals --report reports/eval_report.md

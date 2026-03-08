@@ -5,50 +5,34 @@
 - 结构化输出稳定可解析。
 - 工具调用有参数校验与失败恢复。
 
-## 推荐执行方式（先快后深）
+## L1 当前实现
 
-## Level 1（30-60 分钟）：AI 生成最小可用链路
+- `json_guard`：解析失败后自动修复并重试。
+- 工具白名单 + 参数 schema 校验。
+- regression 用例 >= 20。
 
-### 直接给 AI 的提示词（可复制）
+## L2 当前实现
 
-```text
-帮我生成一个最小 LLM Tool Calling 模板：
-1) 定义 JSON Schema 并校验模型输出
-2) 实现 json_guard：解析失败时自动修复并重试
-3) 工具白名单 + 参数校验
-4) 提供 20 条回归样例（json 或 yaml）
-5) 附 3 个 pytest（schema 通过、修复成功、修复失败）
-请给出完整代码。
+- 工具调用超时保护与错误分类（`SCHEMA_ERROR/TOOL_TIMEOUT/TOOL_EXEC_ERROR/POLICY_BLOCKED`）。
+- 审计日志字段完整：`run_id,module,tool_name,event,error_code,attempt,latency_ms,args_digest,result_digest`。
+- 回归集按 `smoke/regression/adversarial` 分层。
+
+## L3 当前实现
+
+- 敏感工具策略：`write_file_guarded` 需要确认。
+- 指标统计与 `eval_report.md`。
+- prompt 回归通过 `evals` 用例持续验证。
+- CI 工作流：`.github/workflows/ci-stage02.yml`。
+
+## 运行与验收
+
+```bash
+cd python-agent-starter
+uv sync --dev
+uv run ruff check .
+uv run ruff format --check .
+uv run python -m pytest -q
+uv run python -m evals.run_eval --mode all --report reports/eval_report.md
 ```
 
-### 你只做 3 件事
-
-- 落地代码并配置 API Key。
-- 跑 20 条样例。
-- 修复解析错误直到成功率达标。
-
-## Level 2（1-2 小时）：工程加固任务
-
-- 为每个工具定义明确输入输出 schema。
-- 增加工具调用超时、失败重试、错误分类。
-- 记录工具调用审计日志（参数摘要与返回摘要）。
-- 回归样例按场景分组（正常/异常/对抗）。
-
-## Level 3（2-4 小时）：面试可讲深度
-
-- 增加 tool policy（敏感工具必须确认）。
-- 增加输出稳定性指标（schema 合法率、工具成功率）。
-- 增加 prompt 变更回归，验证改 prompt 不破坏旧能力。
-- 输出 `eval_report.md` 与失败 Top3 分析。
-
-## 产物
-
-- `src/agent/json_guard.py`
-- `src/agent/tool_registry.py`
-- `evals/cases.json`
-
-## 验收
-
-- L1：20 条样例结构化解析成功率 >= 95%。
-- L2：工具失败可恢复且有分类日志。
-- L3：有可对比的评估报告。
+验收阈值：结构化解析成功率 >= 95%。

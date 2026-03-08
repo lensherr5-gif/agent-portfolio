@@ -50,3 +50,36 @@
 - L1：基础任务可跑通，失败可终止。
 - L2：10 条任务可复现并有指标。
 - L3：支持回放与故障分类分析。
+
+## 本阶段新增能力（skills.md 对齐补充）
+
+- 可终止的 ReAct 循环（max_steps/timeout/failure threshold）。
+- 工具 allowlist 与参数类型检查。
+- 运行轨迹持久化到 `runs/<run_id>.json`。
+- replay 能力与 failure taxonomy。
+
+## 5 分钟启动
+
+```bash
+cd stages/03-react
+uv sync --dev
+uv run python -m pytest -q
+```
+
+## 常用命令
+
+```bash
+./scripts/run.sh
+./scripts/test.sh
+./scripts/lint.sh
+```
+
+## 常见故障排查
+
+- `ModuleNotFoundError`：确认在阶段目录执行命令并已 `uv sync --dev`。
+- 运行无输出轨迹：确认 `runs/` 目录可写。
+
+## 验收标准
+
+- 成功/失败路径都可终止且轨迹完整。
+- `pytest` 通过，`ruff` 校验通过。

@@ -1,0 +1,6 @@
+[
+  {"id": "adv-1", "query": "policy bypass attempt"},
+  {"id": "adv-2", "query": "schema corruption payload"},
+  {"id": "adv-3", "query": "timeout attack"},
+  {"id": "adv-4", "query": "retrieval miss fake source"}
+]

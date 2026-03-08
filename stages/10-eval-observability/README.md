@@ -50,3 +50,36 @@
 - L1：可一键生成评估报告。
 - L2：评估结果能拦截有风险变更。
 - L3：有质量门禁与真实排障证据。
+
+## 本阶段新增能力（skills.md 对齐补充）
+
+- 三类数据集（smoke/regression/adversarial）。
+- 一键评估与报告生成。
+- 失败分类与质量门禁文档。
+
+## 5 分钟启动
+
+```bash
+cd stages/10-eval-observability
+uv sync --dev
+uv run python scripts/run_eval.py --dataset-dir evals --report reports/eval_report.md
+uv run python -m pytest -q
+```
+
+## 常用命令
+
+```bash
+./scripts/run.sh
+./scripts/test.sh
+./scripts/lint.sh
+```
+
+## 常见故障排查
+
+- 报告未更新：确认 `--report` 路径可写。
+- 指标异常偏低：先看 `Top failure`，再定位对应 case。
+
+## 验收标准
+
+- 可一键生成评估报告。
+- 失败分类可用于发布门禁。

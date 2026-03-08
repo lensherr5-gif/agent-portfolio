@@ -50,3 +50,35 @@
 - L1：技能可被调用且可复用。
 - L2：新增技能不改主流程。
 - L3：技能治理策略可讲清并可演示。
+
+## 本阶段新增能力（skills.md 对齐补充）
+
+- `job-hunter` skill 包与路由。
+- skill 注册表（版本、风险、启停、授权）。
+- 命中/未命中/越权拦截可审计。
+
+## 5 分钟启动
+
+```bash
+cd stages/09-skills
+uv sync --dev
+uv run python -m pytest -q
+```
+
+## 常用命令
+
+```bash
+./scripts/run.sh
+./scripts/test.sh
+./scripts/lint.sh
+```
+
+## 常见故障排查
+
+- 路由未命中：检查 query 是否包含 skill 关键词。
+- 执行被拦截：检查 `approved_users` 是否包含当前用户。
+
+## 验收标准
+
+- 新增 skill 不改主流程，仅注册即可生效。
+- 路由与授权策略可回归测试。

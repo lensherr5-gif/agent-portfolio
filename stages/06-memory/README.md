@@ -49,3 +49,35 @@
 - L1：同用户偏好可复用。
 - L2：多轮样例表现稳定。
 - L3：可解释记忆写入与污染防护策略。
+
+## 本阶段新增能力（skills.md 对齐补充）
+
+- 短期记忆摘要与长期记忆写入/召回。
+- 写入前污染与敏感信息过滤。
+- TTL 与审计轨迹。
+
+## 5 分钟启动
+
+```bash
+cd stages/06-memory
+uv sync --dev
+uv run python -m pytest -q
+```
+
+## 常用命令
+
+```bash
+./scripts/run.sh
+./scripts/test.sh
+./scripts/lint.sh
+```
+
+## 常见故障排查
+
+- 记忆未写入：检查 `confidence` 与策略拦截条件。
+- 跨用户串数据：确认传入正确 `user_id`。
+
+## 验收标准
+
+- 同用户偏好可复用、不同用户严格隔离。
+- 污染文本不会写入长期记忆。
